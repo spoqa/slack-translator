@@ -23,6 +23,6 @@
     "SLACK_WEBHOOK_URL": {
       "description": "You can get the Outgoing Webhook URL from [here](https://slack.com/services/new/outgoing-webhook)",
       "required": true
-    },
+    }
   }
 }

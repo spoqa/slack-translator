@@ -1,0 +1,28 @@
+{
+  "name": "Slack Translator",
+  "description": "You can translate your chat using slack translator.",
+  "keywords": [
+    "small",
+    "sharp",
+    "tool",
+    "translator",
+    "slack"
+  ],
+  "addons": [
+    "heroku-redis:test"
+  ],
+  "env": {
+    "GOOGLE_API_KEY": {
+      "description": "You can get the API Key from [Google Developers Console](https://console.developers.google.com/)",
+      "required": true
+    },
+    "SLACK_API_TOKEN": {
+      "description": "You can get the API Token from [Slack Web API](https://api.slack.com/web)",
+      "required": true
+    },
+    "SLACK_WEBHOOK_URL": {
+      "description": "You can get the Outgoing Webhook URL from [here](https://slack.com/services/new/outgoing-webhook)",
+      "required": true
+    }
+  }
+}

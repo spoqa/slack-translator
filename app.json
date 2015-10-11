@@ -1,0 +1,19 @@
+{
+  "name": "Slack Translator",
+  "description": "You can translate your chat using slack translator.",
+  "keywords": [
+    "small",
+    "sharp",
+    "tool",
+    "translator",
+    "slack"
+  ],
+  "addons": [
+    "heroku-redis:test"
+  ],
+  "env": {
+    "GOOGLE_API_KEY": "REDACTED",
+    "SLACK_API_TOKEN": "REDACTED",
+    "SLACK_WEBHOOK_URL": "REDACTED"
+  }
+}

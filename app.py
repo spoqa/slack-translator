@@ -22,6 +22,7 @@ def translate(text, from_, to):
     return requests.get(
         'https://www.googleapis.com/language/translate/v2',
         params=dict(
+            format='text',
             key=os.environ['GOOGLE_API_KEY'],
             q=text,
             source=from_, target=to

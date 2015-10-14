@@ -5,6 +5,9 @@ MarkupSafe==0.23
 Werkzeug==0.10.4
 gunicorn==19.3.0
 itsdangerous==0.24
+py==1.4.30
+pytest==2.8.2
+pytest-flask==0.10.0
 redis==2.10.3
 requests==2.7.0
 wsgiref==0.1.2

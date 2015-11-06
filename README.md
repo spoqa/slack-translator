@@ -15,12 +15,15 @@ with [Slack][1]:
 
 Also, you need to choose a translator vendor to use:
 
-- `TRANSLATE_ENGINE`: The handle name of the translator vendor.  Currently only support `google`.  `google` by default.
+- `TRANSLATE_ENGINE`: The handle name of the translator vendor.  Currently only support `google` and `naver`.  `google` by default.
 
 If you choose `google` as your `TRANSLATE_ENGINE`, you need to one more
 environment variable for [Google Translate API][3] as well:
 
 - `GOOGLE_API_KEY`: You can get the API Key from [Google Developers Console](https://console.developers.google.com/)
+
+Note that you don't need any additional environment variables when you
+choose `naver` as your `TRANSLATE_ENGINE`.
 
 Then you can add [Slash Commands](https://api.slack.com/slash-commands) to use
 translator.

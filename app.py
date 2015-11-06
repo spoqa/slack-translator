@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request
+from flask import Flask, json, request
 from flask.ext.cache import Cache
 import requests
 
@@ -28,6 +28,25 @@ def google_translate(text, from_, to):
             source=from_, target=to
         )
     ).json()['data']['translations'][0]['translatedText']
+
+
+@cache.memoize(timeout=86400)
+def naver_translate(text, from_, to):
+    response = requests.post(
+        'http://translate.naver.com/translate.dic',
+        data={
+            'query': text.encode('utf-8'),
+            'srcLang': from_,
+            'tarLang': to,
+            'highlight': '0',
+            'hurigana': '0',
+        }
+    )
+    # Why not use .json()?  It's due to translate.naver.com doesn't provide
+    # proper Content-Type (it's not application/json and don't have charset=
+    # either), and it makes requests to treat that the result isn't UTF-8,
+    # while actually it's in UTF-8.
+    return json.loads(response.content)['resultData']
 
 
 translate_engine = os.environ.get('TRANSLATE_ENGINE', 'google')

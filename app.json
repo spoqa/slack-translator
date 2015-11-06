@@ -13,12 +13,12 @@
   ],
   "env": {
     "TRANSLATE_ENGINE": {
-      "description": "Choose a translator vendor to use.  Currently only support `google`.",
+      "description": "Choose a translator vendor to use.  Currently only support `google` and `naver`.",
       "required": true,
       "value": "google"
     },
     "GOOGLE_API_KEY": {
-      "description": "You can get the API Key from [Google Developers Console](https://console.developers.google.com/)",
+      "description": "You can get the API Key from [Google Developers Console](https://console.developers.google.com/).  Note that it's only needed when you choose `google` as your `TRANSLATE_ENGINE`.",
       "required": true
     },
     "SLACK_API_TOKEN": {

@@ -7,12 +7,23 @@ You can translate your chat using slack translator.
 
 ## How to Setup
 
-You need to setup 3 [environment variables][2] to integrate
-[Google translate API][3] with [Slack][1].
+You need to setup the following [environment variables][2] to integrate
+with [Slack][1]:
 
-1. **Google API Key:** You can get the API Key from [Google Developers Console](https://console.developers.google.com/)
-2. **SLACK_API_TOKEN:** You can get the API Token from [Slack Web API](https://api.slack.com/web)
-3. **SLACK_WEBHOOK_URL:** You can get the Incoming Webhook URL from [here](https://slack.com/services/new/incoming-webhook)
+- `SLACK_API_TOKEN`: You can get the API Token from [Slack Web API](https://api.slack.com/web)
+- `SLACK_WEBHOOK_URL`: You can get the Incoming Webhook URL from [here](https://services/new/incoming-webhook)
+
+Also, you need to choose a translator vendor to use:
+
+- `TRANSLATE_ENGINE`: The handle name of the translator vendor.  Currently only support `google` and `naver`.  `google` by default.
+
+If you choose `google` as your `TRANSLATE_ENGINE`, you need to one more
+environment variable for [Google Translate API][3] as well:
+
+- `GOOGLE_API_KEY`: You can get the API Key from [Google Developers Console](https://console.developers.google.com/)
+
+Note that you don't need any additional environment variables when you
+choose `naver` as your `TRANSLATE_ENGINE`.
 
 Then you can add [Slash Commands](https://api.slack.com/slash-commands) to use
 translator.

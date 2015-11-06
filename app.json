@@ -21,7 +21,7 @@
       "required": true
     },
     "SLACK_WEBHOOK_URL": {
-      "description": "You can get the Outgoing Webhook URL from [here](https://slack.com/services/new/outgoing-webhook)",
+      "description": "You can get the Incoming Webhook URL from [here](https://slack.com/services/new/incoming-webhook)",
       "required": true
     }
   }

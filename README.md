@@ -12,7 +12,7 @@ You need to setup 3 [environment variables][2] to integrate
 
 1. **Google API Key:** You can get the API Key from [Google Developers Console](https://console.developers.google.com/)
 2. **SLACK_API_TOKEN:** You can get the API Token from [Slack Web API](https://api.slack.com/web)
-3. **SLACK_WEBHOOK_URL:** You can get the Outgoing Webhook URL from [here](https://slack.com/services/new/outgoing-webhook)
+3. **SLACK_WEBHOOK_URL:** You can get the Incoming Webhook URL from [here](https://slack.com/services/new/incoming-webhook)
 
 Then you can add [Slash Commands](https://api.slack.com/slash-commands) to use
 translator.

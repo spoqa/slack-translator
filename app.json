@@ -9,7 +9,7 @@
     "slack"
   ],
   "addons": [
-    "heroku-redis:test"
+    "heroku-redis:hobby-dev"
   ],
   "env": {
     "GOOGLE_API_KEY": {

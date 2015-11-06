@@ -15,4 +15,3 @@ pytest==2.8.2
 pytest-flask==0.10.0
 redis==2.10.3
 requests==2.7.0
-wsgiref==0.1.2

@@ -12,6 +12,11 @@
     "heroku-redis:hobby-dev"
   ],
   "env": {
+    "TRANSLATE_ENGINE": {
+      "description": "Choose a translator vendor to use.  Currently only support `google`.",
+      "required": true,
+      "value": "google"
+    },
     "GOOGLE_API_KEY": {
       "description": "You can get the API Key from [Google Developers Console](https://console.developers.google.com/)",
       "required": true

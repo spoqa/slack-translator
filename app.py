@@ -18,7 +18,7 @@ else:
 
 
 @cache.memoize(timeout=86400)
-def translate(text, from_, to):
+def google_translate(text, from_, to):
     return requests.get(
         'https://www.googleapis.com/language/translate/v2',
         params=dict(
@@ -28,6 +28,18 @@ def translate(text, from_, to):
             source=from_, target=to
         )
     ).json()['data']['translations'][0]['translatedText']
+
+
+translate_engine = os.environ.get('TRANSLATE_ENGINE', 'google')
+try:
+    translate = globals()[translate_engine + '_translate']
+except KeyError:
+    raise RuntimeError(
+        'TRANSLATE_ENGINE: there is no {0!r} translate engine'.format(
+            translate_engine
+        )
+    )
+assert callable(translate)
 
 
 @cache.memoize(timeout=86400)

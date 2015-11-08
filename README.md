@@ -1,4 +1,4 @@
-# Slack Translator [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) [![Build Status](https://travis-ci.org/spoqa/slack-translator.svg)](https://travis-ci.org/spoqa/slack-translator)
+# Slack Translator [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) [![Build Status](https://travis-ci.org/spoqa/slack-translator.svg)](https://travis-ci.org/spoqa/slack-translator) [![Coverage Status](https://coveralls.io/repos/spoqa/slack-translator/badge.svg?branch=coveralls&service=github)](https://coveralls.io/github/spoqa/slack-translator?branch=coveralls)
 
 You can translate your chat using slack translator.
 

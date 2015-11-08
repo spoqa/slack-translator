@@ -18,3 +18,5 @@ landing/static/css/**/*.css
 landing/static/css/**/*.map
 landing/static/data/strategy.json
 landing/static/built/
+
+.cache/v/cache/lastfailed

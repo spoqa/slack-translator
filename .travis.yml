@@ -10,6 +10,6 @@ install:
 before_script:
   - flake8 .
 script:
-  - coverage run -m py.test
+  - coverage run --source=./ -m py.test
 after_success:
   - coveralls

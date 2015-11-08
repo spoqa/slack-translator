@@ -13,3 +13,12 @@ def test_formatted_text_translate():
 
 def test_get_user():
     get_user('U024SNTB4')['profile']['first_name'] == u'JC'
+
+
+def test_app(fx_app):
+    assert 'ok' in str(fx_app.post('/ko/ja', data=dict(
+        text=u'테스트',
+        user_id='U024SNTB4',
+        user_name='jc',
+        channel_name='slack-translator-test'
+    )).data)

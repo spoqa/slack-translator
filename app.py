@@ -28,6 +28,11 @@ try:
     })
     app.config.update(BROKER_URL=os.environ['REDIS_URL'],
                       CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
+
+    async = ('ASYNC_TRANSLATION' in os.environ and
+             os.environ['ASYNC_TRANSLATION'] == 'YES')
+    app.config.update(CELERY_ALWAYS_EAGER=(False if async else True))
+
     celery = make_celery(app)
 except KeyError:
     raise RuntimeError('REDIS_URL environment variable is required')

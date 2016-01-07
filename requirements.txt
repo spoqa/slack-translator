@@ -10,7 +10,7 @@ celery==3.1.19
 coverage==4.0.2
 coveralls==1.1
 docopt==0.6.2
-flake8==2.5.0
+flake8==2.5.1
 gunicorn==19.3.0
 itsdangerous==0.24
 kombu==3.0.32

@@ -19,6 +19,8 @@ def make_celery(app):
 
 
 app = Flask(__name__)
+if 'DEBUG' in os.environ:
+    app.debug = True
 
 try:
     cache = Cache(app, config={

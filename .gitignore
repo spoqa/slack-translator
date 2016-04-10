@@ -21,3 +21,5 @@ landing/static/data/strategy.json
 landing/static/built/
 
 .cache/v/cache/lastfailed
+
+.env

@@ -35,3 +35,12 @@ def test_make_app_async():
     })
 
     assert not app.config['CELERY_ALWAYS_EAGER']
+
+
+def test_app(fx_app_client):
+    assert 'ok' in str(fx_app_client.post('/ko/ja', data=dict(
+        text=u'테스트',
+        user_id='U024SNTB4',
+        user_name='jc',
+        channel_name='slack-translator-test'
+    )).data)

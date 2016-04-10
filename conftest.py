@@ -2,6 +2,6 @@ import pytest
 
 
 @pytest.fixture
-def app():
-    from app import app
+def fx_app():
+    from app import app, cache
     return app

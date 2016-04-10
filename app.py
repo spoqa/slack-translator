@@ -22,26 +22,33 @@ def make_celery(app):
     return celery
 
 
-app = Flask(__name__)
-if 'DEBUG' in os.environ:
-    app.debug = True
-
-try:
-    cache = Cache(app, config={
-        'CACHE_TYPE': 'redis',
-        'CACHE_KEY_PREFIX': 'slack-translator',
-        'CACHE_REDIS_URL': os.environ['REDIS_URL']
-    })
-    app.config.update(BROKER_URL=os.environ['REDIS_URL'],
-                      CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
-
-    async = ('ASYNC_TRANSLATION' in os.environ and
-             os.environ['ASYNC_TRANSLATION'] == 'YES')
+def make_app(env):
+    app = Flask(__name__)
+    if 'DEBUG' in os.environ:
+        app.debug = True
+    app.config.update(BROKER_URL=env['REDIS_URL'],
+                      CELERY_RESULT_BACKEND=env['REDIS_URL'])
+    async = ('ASYNC_TRANSLATION' in env and
+             env['ASYNC_TRANSLATION'] == 'YES')
     app.config.update(CELERY_ALWAYS_EAGER=(False if async else True))
+    return app
 
-    celery = make_celery(app)
-except KeyError:
-    raise RuntimeError('REDIS_URL environment variable is required')
+
+def make_cache(app):
+    try:
+        cache = Cache(app, config={
+            'CACHE_TYPE': 'redis',
+            'CACHE_KEY_PREFIX': 'slack-translator',
+            'CACHE_REDIS_URL': app.config['BROKER_URL']
+        })
+    except KeyError:
+        raise RuntimeError('REDIS_URL environment variable is required')
+    return cache
+
+
+app = make_app(os.environ)
+cache = make_cache(app)
+celery = make_celery(app)
 
 
 @cache.memoize(timeout=86400)

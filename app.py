@@ -1,20 +1,54 @@
 import os
 
+from celery import Celery
 from flask import Flask, json, request
 from flask.ext.cache import Cache
 import requests
 
 
-app = Flask(__name__)
+def make_celery(app):
+    celery = Celery(app.import_name, broker=app.config['BROKER_URL'])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
 
-if 'REDIS_URL' in os.environ:
-    cache = Cache(app, config={
-        'CACHE_TYPE': 'redis',
-        'CACHE_KEY_PREFIX': 'slack-translator',
-        'CACHE_REDIS_URL': os.environ['REDIS_URL']
-    })
-else:
-    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+
+def make_app(env):
+    app = Flask(__name__)
+    if 'DEBUG' in os.environ:
+        app.debug = True
+    app.config.update(BROKER_URL=env['REDIS_URL'],
+                      CELERY_RESULT_BACKEND=env['REDIS_URL'])
+    async = ('ASYNC_TRANSLATION' in env and
+             env['ASYNC_TRANSLATION'] == 'YES')
+    app.config.update(CELERY_ALWAYS_EAGER=(False if async else True))
+    return app
+
+
+def make_cache(app):
+    try:
+        cache = Cache(app, config={
+            'CACHE_TYPE': 'redis',
+            'CACHE_KEY_PREFIX': 'slack-translator',
+            'CACHE_REDIS_URL': app.config['BROKER_URL']
+        })
+    except KeyError:
+        raise RuntimeError('REDIS_URL environment variable is required')
+    return cache
+
+
+app = make_app(os.environ)
+cache = make_cache(app)
+celery = make_celery(app)
 
 
 @cache.memoize(timeout=86400)
@@ -72,24 +106,37 @@ def get_user(user_id):
     ).json()['user']
 
 
-@app.route('/<string:from_>/<string:to>', methods=['GET', 'POST'])
-def index(from_, to):
-    translated = translate(request.values.get('text'), from_, to)
-    user = get_user(request.values.get('user_id'))
+@celery.task()
+def translate_and_send(user_id, user_name, channel_name, text, from_, to):
+    translated = translate(text, from_, to)
+    user = get_user(user_id)
 
-    for txt in (request.values.get('text'), translated):
+    for txt in (text, translated):
         response = requests.post(
             os.environ['SLACK_WEBHOOK_URL'],
             json={
-                "username": request.values['user_name'],
+                "username": user_name,
                 "text": txt,
                 "mrkdwn": True,
                 "parse": "full",
-                "channel": '#'+request.values['channel_name'],
+                "channel": '#'+channel_name,
                 "icon_url": user['profile']['image_72']
             }
         )
     return response.text
+
+
+@app.route('/<string:from_>/<string:to>', methods=['GET', 'POST'])
+def index(from_, to):
+    translate_and_send.delay(
+        request.values.get('user_id'),
+        request.values.get('user_name'),
+        request.values.get('channel_name'),
+        request.values.get('text'),
+        from_,
+        to
+    )
+    return 'ok'
 
 
 if __name__ == '__main__':

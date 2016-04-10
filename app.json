@@ -28,6 +28,10 @@
     "SLACK_WEBHOOK_URL": {
       "description": "You can get the Incoming Webhook URL from [here](https://slack.com/services/new/incoming-webhook)",
       "required": true
+    },
+    "ASYNC_TRANSLATION": {
+      "description": "If this option is YES, translation task will be processed asynchronously. Note that you need to use worker instance at least one for using this option.",
+      "value": "NO"
     }
   }
 }

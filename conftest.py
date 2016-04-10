@@ -1,7 +1,12 @@
 import pytest
+from app import app
+
+
+@pytest.fixture
+def fx_app_client():
+    return app.test_client()
 
 
 @pytest.fixture
 def fx_app():
-    from app import app
-    return app.test_client()
+    return app

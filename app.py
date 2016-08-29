@@ -1,7 +1,7 @@
 import os
 
 from celery import Celery
-from flask import Flask, json, request
+from flask import Flask, request
 from flask.ext.cache import Cache
 import requests
 
@@ -24,8 +24,7 @@ def make_celery(app):
 
 def make_app(env):
     app = Flask(__name__)
-    if 'DEBUG' in os.environ:
-        app.debug = True
+    app.debug = 'DEBUG' in os.environ
     app.config.update(BROKER_URL=env['REDIS_URL'],
                       CELERY_RESULT_BACKEND=env['REDIS_URL'])
     async = ('ASYNC_TRANSLATION' in env and
@@ -67,20 +66,17 @@ def google_translate(text, from_, to):
 @cache.memoize(timeout=86400)
 def naver_translate(text, from_, to):
     response = requests.post(
-        'http://translate.naver.com/translate.dic',
-        data={
-            'query': text.encode('utf-8'),
-            'srcLang': from_,
-            'tarLang': to,
-            'highlight': '0',
-            'hurigana': '0',
+        'https://openapi.naver.com/v1/language/translate',
+        data=dict(
+            text=text,
+            source=from_, target=to
+        ),
+        headers={
+            'X-Naver-Client-Id': os.environ['NAVER_CLIENT_ID'],
+            'X-Naver-Client-Secret': os.environ['NAVER_CLIENT_SECRET']
         }
     )
-    # Why not use .json()?  It's due to translate.naver.com doesn't provide
-    # proper Content-Type (it's not application/json and don't have charset=
-    # either), and it makes requests to treat that the result isn't UTF-8,
-    # while actually it's in UTF-8.
-    return json.loads(response.content)['resultData']
+    return response.json()['message']['result']['translatedText']
 
 
 translate_engine = os.environ.get('TRANSLATE_ENGINE', 'google')

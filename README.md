@@ -20,21 +20,18 @@ Also, you need to choose a translator vendor to use:
 
 ### Google translator
 
-If you choose `google` as your `TRANSLATE_ENGINE`, you need to one more
+If you choose `google` as your `TRANSLATE_ENGINE`, you need to add one more
 environment variable for [Google Translate API][3] as well:
 
 - `GOOGLE_API_KEY`: You can get the API Key from [Google Developers Console](https://console.developers.google.com/)
 
 ### Naver translator
 
-If you choose `naver` as your `TRANSLATE_ENGINE`, you need to two more
+If you choose `naver` as your `TRANSLATE_ENGINE`, you need to add two more
 environment variable for [Naver Translator API][4] as well:
 
 - `NAVER_CLIENT_ID`/ `NAVER_CLIENT_SECRET` : You can get the API Key from [Naver Developer Website](https://developers.naver.com/register?defaultScope=translate)
 
-
-Note that you don't need any additional environment variables when you
-choose `naver` as your `TRANSLATE_ENGINE`.
 
 Then you can add [Slash Commands](https://api.slack.com/slash-commands) to use
 translator.

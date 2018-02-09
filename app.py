@@ -58,7 +58,7 @@ if 'REDIS_URL' in os.environ:
         'CACHE_KEY_PREFIX': 'slack-translator',
         'CACHE_REDIS_URL': os.environ['REDIS_URL']
     })
-    redis_store = StrictRedis(os.environ['REDIS_URL'])
+    redis_store = StrictRedis.from_url(os.environ['REDIS_URL'])
 else:
     cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
@@ -82,7 +82,7 @@ def load_from_redis(key):
 
 @cache.memoize(timeout=86400)
 def google_translate(text, from_, to):
-    r = requests.get(
+    return requests.get(
         'https://www.googleapis.com/language/translate/v2',
         params=dict(
             format='text',
@@ -90,9 +90,7 @@ def google_translate(text, from_, to):
             q=text,
             source=from_, target=to
         )
-    ).json()
-    print(r)  # for debugging
-    return r['data']['translations'][0]['translatedText']
+    ).json()['data']['translations'][0]['translatedText']
 
 
 @cache.memoize(timeout=86400)
@@ -222,7 +220,7 @@ re_japanese = re.compile('[ぁ-んァ-ン一-龯]')
 
 
 def detect_language(text):
-    """Detect language of given text. Prototype."""
+    """Detect language of given text. Only supports ko/ja/en."""
     korean_score = sum(bool(re_korean.match(c)) for c in text)
     japanese_score = sum(bool(re_japanese.match(c)) for c in text)
     if korean_score and korean_score >= japanese_score:
@@ -243,7 +241,7 @@ def get_meeting_mode_channels():
 
 @app.route('/meeting_mode', methods=['POST'])
 def meeting_mode():
-    """"""
+    """Handle slack events"""
     if 'challenge' in request.json:
         # Handle Slack handler url verification
         return request.json['challenge']
@@ -261,8 +259,8 @@ def meeting_mode():
     user_id = event.get('user')
 
     if channel_id in meeting_mode_channels:
-        lang1 = meeting_mode_channels['language1']
-        lang2 = meeting_mode_channels['language2']
+        lang1 = meeting_mode_channels[channel_id]['language1']
+        lang2 = meeting_mode_channels[channel_id]['language2']
         if detect_language(text) == lang1:
             from_, to = lang1, lang2
         elif detect_language(text) == lang2:
@@ -280,19 +278,20 @@ def meeting_mode():
 @app.route('/start_meeting_mode/<string:language1>/<string:language2>',
            methods=['GET', 'POST'])
 def start_meeting_mode(language1, language2):
-    """
+    """Start meeting mode. Translates all messages in `langauge1`
+    and `language2` to each other.
 
     :param language1: Preferred language of the callee
-    :param language2:
-    :return:
+    :param language2: Other language to translate
     """
     channel_id = request.values['channel_id']
     user_id = request.values['user_id']
+    user_name = request.values['user_name']
 
     meeting_mode_channels = get_meeting_mode_channels()
 
     if channel_id in meeting_mode_channels:
-        message = f'<@{user_id}>: 이미 회의 모드가 진행중입니다.'
+        message = f'@{user_name}: 이미 회의 모드가 진행중입니다.'
         post_to_slack_as_bot(channel_id, message)
         return ''
 
@@ -302,29 +301,34 @@ def start_meeting_mode(language1, language2):
         'language1': language1,
         'language2': language2,
     }
-    store_to_redis('meeting_mode_channels', meeting_mode_channels)  # TODO: 추상화 레벨이 안맞고 반복있음
-    message = f'<@{user_id}>님의 요청으로 회의 모드를 개시합니다. 현 시간부로 이 채널의 모든 대화는 번역됩니다.'
+    store_to_redis('meeting_mode_channels', meeting_mode_channels)
+    message = f'@{user_name}님의 요청으로 회의 모드를 개시합니다. '\
+              f'현 시간부로 이 채널의 모든 대화는 번역됩니다.'
     post_to_slack_as_bot(channel_id, message)
     return ''
 
 
+
 @app.route('/stop_meeting_mode/', methods=['GET', 'POST'])
 def stop_meeting_mode():
+    """Stops meeting mode in current channel"""
     channel_id = request.values['channel_id']
     user_id = request.values['user_id']
+    user_name = request.values['user_name']
     meeting_mode_channels = get_meeting_mode_channels()
 
     if channel_id not in meeting_mode_channels:
-        message = f'<@{user_id}>: 진행중인 회의 모드가 없습니다.'
+        message = f'@{user_name}: 진행중인 회의 모드가 없습니다.'
         post_to_slack_as_bot(channel_id, message)
         return ''
 
     meeting_mode_channels.pop(channel_id)
+    store_to_redis('meeting_mode_channels', meeting_mode_channels)
 
-    message = f'<@{user_id}>님의 요청으로 회의 모드를 종료합니다.'
+    message = f'@{user_name}님의 요청으로 회의 모드를 종료합니다.'
     post_to_slack_as_bot(channel_id, message)
     return ''
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5141)
+    app.run(debug=True)

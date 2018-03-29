@@ -53,14 +53,7 @@ celery = make_celery(app)
 
 redis_store = None
 if 'REDIS_URL' in os.environ:
-    cache = Cache(app, config={
-        'CACHE_TYPE': 'redis',
-        'CACHE_KEY_PREFIX': 'slack-translator',
-        'CACHE_REDIS_URL': os.environ['REDIS_URL']
-    })
     redis_store = StrictRedis.from_url(os.environ['REDIS_URL'])
-else:
-    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 
 def store_to_redis(key, obj):
@@ -164,6 +157,7 @@ def index(from_, to):
     )
     return 'ok'
 
+
 def post_to_slack(**kwargs):
     """Post to slack"""
 
@@ -199,20 +193,6 @@ def post_to_slack_as_user(user_id, channel_id, text):
         channel=channel_id,
         icon_url=user['profile']['image_72'],
     )
-
-
-@app.route('/<string:from_>/<string:to>', methods=['GET', 'POST'])
-def index(from_, to):
-    """Translate a message and post it as user"""
-    text = request.values.get('text')
-    channel_id = request.values.get('channel_id')
-    user_id = request.values.get('user_id')
-
-    translated_text = translate(text, from_, to)
-
-    post_to_slack_as_user(user_id, channel_id, text)
-    response = post_to_slack_as_user(user_id, channel_id, translated_text)
-    return response.text
 
 
 re_korean = re.compile('[가-힣ㄱ-ㅎ]')
@@ -302,18 +282,16 @@ def start_meeting_mode(language1, language2):
         'language2': language2,
     }
     store_to_redis('meeting_mode_channels', meeting_mode_channels)
-    message = f'@{user_name}님의 요청으로 회의 모드를 개시합니다. '\
+    message = f'@{user_name}님의 요청으로 회의 모드를 개시합니다. ' \
               f'현 시간부로 이 채널의 모든 대화는 번역됩니다.'
     post_to_slack_as_bot(channel_id, message)
     return ''
-
 
 
 @app.route('/stop_meeting_mode/', methods=['GET', 'POST'])
 def stop_meeting_mode():
     """Stops meeting mode in current channel"""
     channel_id = request.values['channel_id']
-    user_id = request.values['user_id']
     user_name = request.values['user_name']
     meeting_mode_channels = get_meeting_mode_channels()
 

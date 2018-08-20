@@ -51,22 +51,16 @@ app = make_app(os.environ)
 cache = make_cache(app)
 celery = make_celery(app)
 
-redis_store = None
-if 'REDIS_URL' in os.environ:
-    redis_store = StrictRedis.from_url(os.environ['REDIS_URL'])
+redis_store = StrictRedis.from_url(os.environ['REDIS_URL'])
 
 
 def store_to_redis(key, obj):
     """Save json-serializable object to redis"""
-    if not redis_store:
-        raise Exception('Please set `REDIS_URL` environment variable.')
     redis_store.set(key, json.dumps(obj))
 
 
 def load_from_redis(key):
     """Load json-serializable object from redis"""
-    if not redis_store:
-        raise Exception('Please set `REDIS_URL` environment variable.')
     obj_raw = redis_store.get(key)
     if obj_raw is None:
         return None
@@ -201,8 +195,8 @@ re_japanese = re.compile('[ぁ-んァ-ン一-龯]')
 
 def detect_language(text):
     """Detect language of given text. Only supports ko/ja/en."""
-    korean_score = sum(bool(re_korean.match(c)) for c in text)
-    japanese_score = sum(bool(re_japanese.match(c)) for c in text)
+    korean_score = len(re_korean.findall(text))
+    japanese_score = len(re_japanese.findall(text))
     if korean_score and korean_score >= japanese_score:
         return 'ko'
     if japanese_score > korean_score:
